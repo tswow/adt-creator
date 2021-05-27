@@ -23,6 +23,7 @@ int main(int argc, char** argv)
   {
     std::cout << "Invalid argument count: " << argc << "\n";
     std::cout << usage;
+    exit(1);
   }
 
   std::string input_adt = std::string(argv[1]);

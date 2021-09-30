@@ -5,7 +5,7 @@
 #include <string>
 #include <filesystem>
 
-void writeAdt(std::string sourceFile, std::string dstDir, std::string dstName, int minAdtX, int minAdtY, int maxAdtX, int maxAdtY, ZoneGroup & group)
+void writeAdt(std::string sourceFile, std::string dstDir, std::string dstName, int minAdtX, int minAdtY, int maxAdtX, int maxAdtY)
 {
 	std::cout << "Reading ADT offsets\n";
 	std::ifstream file(sourceFile, std::ios::out | std::ios::binary);
@@ -61,8 +61,10 @@ void writeAdt(std::string sourceFile, std::string dstDir, std::string dstName, i
 		{
 			auto dstFile = dstName + "_" + std::to_string(x) + "_" + std::to_string(y) + ".adt";
 			auto dstPath = (std::filesystem::path(dstDir) / dstFile).string();
-			std::filesystem::copy_file(sourceFile, dstPath, std::filesystem::copy_options::overwrite_existing);
-			group.append(dstFile,dstPath);
+			if (!std::filesystem::exists(dstPath))
+			{
+				std::filesystem::copy_file(sourceFile, dstPath);
+			}
 
 			std::ofstream out = std::ofstream(dstPath, std::ios::in | std::ios::out | std::ios::binary);
 			for (unsigned i = 0; i < 256; ++i)

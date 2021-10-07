@@ -16,7 +16,7 @@
 
 void createWDT(ZoneGroup& zGroup){
     if(zGroup.getSize()){ //Guard against empty zoneFile
-        std::fstream wdtFile;
+        std::ofstream wdtFile;
         wdtFile.open((zGroup.getAdtBase(0) + ".wdt").c_str(), std::fstream::out | std::fstream::binary);
 
         UInt32 buffer;

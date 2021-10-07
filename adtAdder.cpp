@@ -65,6 +65,10 @@ void writeAdt(std::string sourceFile, std::string dstDir, std::string dstName, i
 			{
 				std::filesystem::copy_file(sourceFile, dstPath);
 			}
+			else
+			{
+				continue;
+			}
 
 			std::ofstream out = std::ofstream(dstPath, std::ios::in | std::ios::out | std::ios::binary);
 			for (unsigned i = 0; i < 256; ++i)

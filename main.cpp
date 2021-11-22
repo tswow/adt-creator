@@ -27,6 +27,13 @@ int main(int argc, char** argv)
   }
 
   std::string input_adt = std::string(argv[1]);
+
+  if(!std::filesystem::exists(input_adt))
+  {
+    std::cout << "Missing input adt: " << input_adt << "\n";
+    exit(1);
+  }
+
   std::string output_dir = std::string(argv[2]);
   std::string output_name = std::string(argv[3]);
 

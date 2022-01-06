@@ -2,6 +2,7 @@
 #define __ZONE_GROUP
 
 #include <string>
+#include <string.h>
 #include <cstdio>
 #include <fstream>
 #include <iostream>

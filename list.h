@@ -80,7 +80,7 @@ class list : public containerInterface<T>
             return *this;
         }
 
-        list<T>& popFront(T& n)	throw(BADINDEX)
+        list<T>& popFront(T& n)
         {
             if(head) //If the list contains something
             {
@@ -94,7 +94,7 @@ class list : public containerInterface<T>
             return *this;
         }
 
-        list<T>& popBack(T& n)	throw(BADINDEX)
+        list<T>& popBack(T& n)
         {
             node<T> *p = head;
             while(p && p->next){
@@ -176,7 +176,7 @@ class list : public containerInterface<T>
             return false;
         }
 
-        T  front()			throw(BADINDEX)
+        T  front()
         {
             if(head)
             {
@@ -185,7 +185,7 @@ class list : public containerInterface<T>
             else throw BADINDEX(); //Grr!  The function is mad!  >:(
         }
 
-        T  back()			throw(BADINDEX)
+        T  back()
         {
             if(head)
             {
@@ -196,7 +196,7 @@ class list : public containerInterface<T>
             else throw BADINDEX();
         }
 
-        T& operator [](int n)	throw(BADINDEX)
+        T& operator [](int n)
         {
             if(n < 0 || n >= getSize()) throw BADINDEX();
             else{

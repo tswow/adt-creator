@@ -22,3 +22,9 @@ target_include_directories(adt-creator PUBLIC
      "${PROJECT_SOURCE_DIR}"
      ${thread_pool_SOURCE_DIR}
 )
+
+if(UNIX)
+	set(THREADS_PREFER_PTHREAD_FLAG ON)
+	find_package(Threads REQUIRED)
+	target_link_libraries(blpconverter PRIVATE Threads::Threads)
+endif()

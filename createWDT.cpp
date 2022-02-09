@@ -1,5 +1,8 @@
 #include "createWDT.h"
 
+#include <vector>
+#include <set>
+
 /**************************************************************
 *  All WDT's start with 0x4d564552 (REVM), 0x04, 0x12,        *
 *  0x4d504844 (DHPM), and 0x20.  All of those are 1 byte      *
@@ -76,12 +79,18 @@ void createWDT(ZoneGroup& zGroup){
         wdtFile.write((char*)&buffer, 4*1);
         buffer = 0x8000; //Weird C symbol
         wdtFile.write((char*)&buffer, 4*1);
+
+        std::vector<int> xValues(zGroup.getSize());
+        std::vector<int> yValues(zGroup.getSize());
+
+        std::set<std::pair<int, int>> tiles;
+        for (int i = 0; i < zGroup.getSize(); ++i) {
+            tiles.insert(std::make_pair(zGroup.getAdtX(i), zGroup.getAdtY(i)));
+        }
+
         for(int y=0; y < 64; y++)
             for(int x=0; x < 64; x++){
-                buffer = 0x00;
-                for(int i=0; i < zGroup.getSize(); i++)
-                    if(x == zGroup.getAdtX(i) && y == zGroup.getAdtY(i))
-                        buffer = 0x01;
+                buffer = tiles.find(std::make_pair(x, y)) != tiles.end() ? 0x01 : 0x00;
                 wdtFile.write((char*)&buffer, 4*1);
                 buffer = 0x00;
                 wdtFile.write((char*)&buffer, 4*1);

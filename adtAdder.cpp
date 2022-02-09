@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
+#include "thread_pool.hpp"
 
 void writeAdt(std::string sourceFile, std::string dstDir, std::string dstName, int minAdtX, int minAdtY, int maxAdtX, int maxAdtY)
 {
@@ -55,31 +56,37 @@ void writeAdt(std::string sourceFile, std::string dstDir, std::string dstName, i
 
 	std::cout << "Writing ADT files\n";
 
+	synced_stream sync_out;
+	thread_pool pool;
 	for (int x = minAdtX; x <= maxAdtX; ++x)
 	{
 		for (int y = minAdtY; y <= maxAdtY; ++y)
 		{
-			auto dstFile = dstName + "_" + std::to_string(x) + "_" + std::to_string(y) + ".adt";
-			auto dstPath = (std::filesystem::path(dstDir) / dstFile).string();
-			if (!std::filesystem::exists(dstPath))
-			{
-				std::filesystem::copy_file(sourceFile, dstPath);
-			}
-			else
-			{
-				continue;
-			}
+			pool.push_task([=, &sync_out] {
+				auto dstFile = dstName + "_" + std::to_string(x) + "_" + std::to_string(y) + ".adt";
+				auto dstPath = (std::filesystem::path(dstDir) / dstFile).string();
+				sync_out.println("\rWriting ",dstFile);
+				if (!std::filesystem::exists(dstPath))
+				{
+					std::filesystem::copy_file(sourceFile, dstPath);
+				}
+				else
+				{
+					return;
+				}
 
-			std::ofstream out = std::ofstream(dstPath, std::ios::in | std::ios::out | std::ios::binary);
-			for (unsigned i = 0; i < 256; ++i)
-			{
-				out.seekp(offsets[i]);
-				float offX = 17066.7 - (x * 533.33333) - ((i/16)*33.33333);
-				float offY = 17066.7 - (y * 533.33333) - ((i%16)*33.33333);
-				out.write(reinterpret_cast<char*>(&offX), sizeof(float));
-				out.write(reinterpret_cast<char*>(&offY), sizeof(float));
-			}
-			out.close();
+				std::ofstream out = std::ofstream(dstPath, std::ios::in | std::ios::out | std::ios::binary);
+				for (unsigned i = 0; i < 256; ++i)
+				{
+					out.seekp(offsets[i]);
+					float offX = 17066.7 - (x * 533.33333) - ((i/16)*33.33333);
+					float offY = 17066.7 - (y * 533.33333) - ((i%16)*33.33333);
+					out.write(reinterpret_cast<char*>(&offX), sizeof(float));
+					out.write(reinterpret_cast<char*>(&offY), sizeof(float));
+				}
+				out.close();
+			});
 		}
 	}
+	pool.wait_for_tasks();
 }

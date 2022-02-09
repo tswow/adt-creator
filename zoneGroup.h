@@ -35,6 +35,20 @@ class ZoneGroup{
         }
     }
 
+  protected:
+    list<std::string> adtList;  //List of ADTs in group
+    list<std::string> origList; //List of ADT original names.  Should stay paired with adtList
+
+  public:
+    ZoneGroup(){
+        upLeft.x    = 0;
+        upLeft.y    = 0;
+        downRight.x = 0;
+        downRight.y = 0;
+    }
+
+    ~ZoneGroup(){;}
+
     void calcBounds(){ //Calculate top-left and bottom-right points of bounding rectangle
         for(int i=0; i < adtList.getSize(); i++){
             if(i==0){ //First value, so it must be the highest and lowest
@@ -52,19 +66,6 @@ class ZoneGroup{
         }
     }
 
-  protected:
-    list<std::string> adtList;  //List of ADTs in group
-    list<std::string> origList; //List of ADT original names.  Should stay paired with adtList
-
-  public:
-    ZoneGroup(){
-        upLeft.x    = 0;
-        upLeft.y    = 0;
-        downRight.x = 0;
-        downRight.y = 0;
-    }
-
-    ~ZoneGroup(){;}
 
     bool isTouching(int x1, int y1, int x2, int y2){ //Checks to see if the two points touch each other
         bool touching=false;
@@ -286,6 +287,11 @@ class ZoneGroup{
         origList.pushBack(str);
         adtList.pushBack(str);
         calcBounds(); //Bounds probably changed.  Be sure to check.
+    }
+
+    void appendNoCalc(std::string str, std::string origStr) {
+        origList.pushBack(origStr);
+        adtList.pushBack(str);
     }
 
     void append(std::string str, std::string origStr){

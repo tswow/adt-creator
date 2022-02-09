@@ -59,8 +59,9 @@ int main(int argc, char** argv)
   writeAdt(input_adt, output_dir, output_name, min_x, min_y, max_x, max_y);
   for (auto const& dir_entry : std::filesystem::directory_iterator{ std::filesystem::path(output_dir) })
   {
-    group.append(dir_entry.path().filename().string(), dir_entry.path().string());
+    group.appendNoCalc(dir_entry.path().filename().string(), dir_entry.path().string());
   }
+  group.calcBounds();
 
   std::filesystem::current_path(output_dir);
 

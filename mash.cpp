@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "thread_pool.hpp"
 #include "list.h" //Makes my life so much easier
 #include "zoneGroup.h" //Custom class that contains information about a group of ADTs
 #include "offsetFix.h" //Used in fixing offsets after movement
@@ -36,28 +37,37 @@ int mash(list<ZoneGroup> zoneGroupList, std::string outputName, bool offsetFixEn
     // This part of the code was modeled from Cryect's OffsetFix
     if(offsetFixEnabled){
         std::cout << "Correcting offsets\n";
+
+	    synced_stream sync_out;
+	    thread_pool pool;
+
+
         for(int i=0; i < zoneGroupList[0].getSize(); i++) //Fix each file
         {
-            std::fstream zoneFile;
-            zoneFile.open(zoneGroupList[0][i].c_str(), std::ios::in | std::ios::out | std::ios::binary);
-            OffsetFixData offData;
-            offData.offset.x    = zoneGroupList[0].getAdtX(i);
-            offData.offset.y    = zoneGroupList[0].getAdtY(i);
-            offData.offset.zOff = 1.0 * zOffset;
-            offData.offset.wdtXOff = 1.0 * wdtXOffset;
-            offData.offset.wdtYOff = 1.0 * wdtYOffset;
-            offData.offset.wdtZOff = 1.0 * wdtZOffset;
+            pool.push_task([&,i] {
+                std::fstream zoneFile;
+                zoneFile.open(zoneGroupList[0][i].c_str(), std::ios::in | std::ios::out | std::ios::binary);
+                sync_out.println("Correcting ", zoneGroupList[0][i]);
+                OffsetFixData offData;
+                offData.offset.x    = zoneGroupList[0].getAdtX(i);
+                offData.offset.y    = zoneGroupList[0].getAdtY(i);
+                offData.offset.zOff = 1.0 * zOffset;
+                offData.offset.wdtXOff = 1.0 * wdtXOffset;
+                offData.offset.wdtYOff = 1.0 * wdtYOffset;
+                offData.offset.wdtZOff = 1.0 * wdtZOffset;
 
-            //Fix the offsets
-            findMCNKs      (zoneFile, offData);
-            findMDDFandMODF(zoneFile, offData);
-            fixMCNKs       (zoneFile, offData);
-            fixDoodads     (zoneFile, offData);
-            fixWMOs        (zoneFile, offData);
+                //Fix the offsets
+                findMCNKs      (zoneFile, offData);
+                findMDDFandMODF(zoneFile, offData);
+                fixMCNKs       (zoneFile, offData);
+                fixDoodads     (zoneFile, offData);
+                fixWMOs        (zoneFile, offData);
 
-            //createWDL      (zoneFile); //NOT YET IMPLEMENTED
-            zoneFile.close();
+                //createWDL      (zoneFile); //NOT YET IMPLEMENTED
+                zoneFile.close();
+            });
         }
+        pool.wait_for_tasks();
     }
     //Create a WDT file
     /* This part of the code was checked with Cryect's CreateWDT.  I made several improvements compared to the original. */
